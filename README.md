@@ -2,6 +2,13 @@
 
 Unified Hermes Agent and Desktop plugin: TypeSafe Jev routes misspelled, shortened, and meaning-based slash commands to real Hermes commands.
 
+<a href="hermes://plugin/install?repo=raitoxlol/hermes-slash-router&enable=1">Install in Hermes</a> — or run `hermes plugins install raitoxlol/hermes-slash-router`.
+
+## Requirements
+
+- Hermes Agent >= 0.21.2.
+- A `TYPESAFE_API_KEY` for TypeSafe Jev. Every non-exact slash token is routed by a billed API call. With no key the plugin stays inert: it fails closed and your draft is left alone.
+
 ## Behavior
 
 1. Exact live commands and native aliases pass through unchanged.
@@ -15,7 +22,16 @@ Prior decisions persist in Hermes plugin storage, scoped by profile and catalog 
 
 ## Install
 
-The current verified Hermes target is v0.21.2. From a local checkout, run `python3 install.py`; it copies one unified package into `$HERMES_HOME/plugins/hermes-slash-router` and refuses to overwrite an existing package. It also refuses to install over a pre-existing standalone Desktop copy: back that copy up and remove it manually before retrying. Then run `hermes plugins enable hermes-slash-router`, rescan or reload Hermes Desktop, and enable Slash Router in **Capabilities → Plugins**. Both halves remain off until you enable them. For a hosted repository, the normal install path is `hermes plugins install <owner>/<repo>`.
+Verified target: Hermes Agent v0.21.2.
+
+```bash
+hermes plugins install raitoxlol/hermes-slash-router
+hermes plugins enable hermes-slash-router
+```
+
+Then rescan or reload Hermes Desktop (⌘K → **Rescan desktop plugins**) and enable Slash Router in **Capabilities → Plugins**. Both halves ship off and stay off until you enable them. It is one installable folder, `plugins/hermes-slash-router/`; Hermes Desktop copies its `desktop/plugin.js` half into `desktop-plugins/` for you.
+
+Working from a checkout instead? `python3 install.py` copies the same unified package into `$HERMES_HOME/plugins/hermes-slash-router` — set `HERMES_HOME` to target a profile. It refuses to overwrite an existing package, or a hand-placed standalone Desktop copy; back those up and remove them first.
 
 The manifest declares `TYPESAFE_API_KEY` as a required secret, and the hosted Hermes install flow prompts for it. The local copy installer never reads or writes credentials; for a local install, provide the key to the gateway through your normal secret setup. Do not put it in plugin.js or plugin storage. Remote gateways need the agent package installed and enabled on that remote host.
 
@@ -42,3 +58,7 @@ The offline tests cover cross-spelling correction examples, profile/catalog scop
 Possible next directions beyond slash commands are in [ROADMAP.md](ROADMAP.md); they are proposals, not shipped behavior.
 
 References: [TypeSafe API quickstart](https://docs.typesafe.ai/introduction/quickstart), [Hermes Desktop SDK for v0.21.2](https://github.com/NousResearch/hermes-agent/blob/v2026.9.11/website/docs/developer-guide/desktop-plugin-sdk.md).
+
+## License
+
+MIT — see [LICENSE](LICENSE).

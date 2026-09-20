@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Desktop half tests
+        run: npm test
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Backend tests
+        run: |
+          pip install fastapi pydantic
+          python -m unittest discover -s tests -p 'test_*.py'
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Install the exact tag this plugin is verified against. PyPI's
+      # `hermes-agent` lags the release train (0.19.0), so the tag is the
+      # accurate comparison for both the CLI and the manifest validator.
+      - name: Install Hermes Agent
+        run: pip install "git+https://github.com/NousResearch/hermes-agent@v2026.9.11"
+
+      # Manifest validation only. Do not declare `requires_hermes` in
+      # plugin.yaml: on this build the validator raises ImportError
+      # (_VERSION_COMPARATOR_RE was removed from hermes_cli.plugins), so the
+      # field turns `hermes plugins validate` into a traceback.
+      - name: Validate manifest
+        run: hermes plugins validate .
