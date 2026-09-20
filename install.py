@@ -20,7 +20,7 @@ def install(home: Path | None = None) -> Path:
             'this installer will not replace or migrate them.')
     package.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source, package, ignore=shutil.ignore_patterns(
-        '.git', '.gitignore', '__pycache__', '*.py[cod]', 'tests',
+        '.git', '.gitignore', '.github', '__pycache__', '*.py[cod]', 'tests',
         'install.py', 'live-results.json'))
     return package
 
