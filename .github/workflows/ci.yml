@@ -27,7 +27,7 @@ jobs:
           pip install fastapi pydantic
           python -m unittest discover -s tests -p 'test_*.py'
 
-  validate:
+  manifest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,15 +36,48 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Install the exact tag this plugin is verified against. PyPI's
-      # `hermes-agent` lags the release train (0.19.0), so the tag is the
-      # accurate comparison for both the CLI and the manifest validator.
-      - name: Install Hermes Agent
-        run: pip install "git+https://github.com/NousResearch/hermes-agent@v2026.9.11"
+      # This deliberately does not run `hermes plugins validate`. Neither
+      # install path is usable in CI: PyPI's `hermes-agent` is 0.19.0 and has
+      # no `plugins validate` subcommand, and `pip install git+…@v2026.9.11`
+      # fails to build a wheel. The supported installer is a curl|bash script.
+      # The authoritative validation is the catalog PR's own action; this job
+      # keeps the manifest from regressing in the meantime.
+      - name: Manifest check
+        run: |
+          pip install pyyaml
+          python - <<'PY'
+          import re, sys, yaml
 
-      # Manifest validation only. Do not declare `requires_hermes` in
-      # plugin.yaml: on this build the validator raises ImportError
-      # (_VERSION_COMPARATOR_RE was removed from hermes_cli.plugins), so the
-      # field turns `hermes plugins validate` into a traceback.
-      - name: Validate manifest
-        run: hermes plugins validate .
+          m = yaml.safe_load(open('plugin.yaml'))
+          errors = []
+
+          if not re.fullmatch(r'[a-z0-9_-]{1,64}', str(m.get('name', ''))):
+              errors.append('name must match [a-z0-9_-]{1,64}')
+          if not m.get('version'):
+              errors.append('version is required')
+          if not m.get('description'):
+              errors.append('description is required')
+
+          env = m.get('requires_env')
+          if not isinstance(env, list) or not env:
+              errors.append('requires_env must be a non-empty list')
+          else:
+              for entry in env:
+                  key = str(entry.get('name', ''))
+                  if not re.fullmatch(r'[A-Z0-9_]+', key):
+                      errors.append(f'requires_env name {key!r} must be UPPER_SNAKE')
+                  if entry.get('secret') is not True:
+                      errors.append(f'requires_env {key!r} must set secret: true')
+
+          # On Hermes 0.21.2, declaring this key makes `hermes plugins validate`
+          # raise ImportError (_VERSION_COMPARATOR_RE was removed from
+          # hermes_cli.plugins). A field that breaks the catalog validator must
+          # not come back until upstream fixes it.
+          if 'requires_hermes' in m:
+              errors.append('do not declare requires_hermes: it crashes `hermes plugins validate` on 0.21.2')
+
+          for e in errors:
+              print(f'::error::{e}')
+          print('manifest ok' if not errors else 'manifest FAILED')
+          sys.exit(1 if errors else 0)
+          PY
