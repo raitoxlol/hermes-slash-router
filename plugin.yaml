@@ -1,3 +1,7 @@
 name: hermes-slash-router
 version: 0.1.0
-description: Jev-first typo, abbreviation, and semantic slash-command routing; prior decisions are reminders, never automatic routes.
+description: Jev-powered routing for misspelled, shortened, and meaning-based Hermes Desktop slash commands.
+requires_env:
+  - name: TYPESAFE_API_KEY
+    description: TypeSafe API key for Jev routing; requests use paid API usage.
+    secret: true

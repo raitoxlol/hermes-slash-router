@@ -1,6 +1,6 @@
 # Hermes Slash Router
 
-Hermes Desktop plugin: TypeSafe Jev routes misspelled, shortened, and meaning-based slash commands to real Hermes commands.
+Unified Hermes Agent and Desktop plugin: TypeSafe Jev routes misspelled, shortened, and meaning-based slash commands to real Hermes commands.
 
 ## Behavior
 
@@ -15,17 +15,21 @@ Prior decisions persist in Hermes plugin storage, scoped by profile and catalog 
 
 ## Install
 
-Run `python3 ~/Projects/hermes-slash-router/install.py` once. It refuses to overwrite an existing installation. Then use ⌘K → **Reload desktop plugins**. Exact valid commands need no Jev request; non-exact routing uses the enabled backend and its server-side API key.
+The current verified Hermes target is v0.21.2. From a local checkout, run `python3 install.py`; it copies one unified package into `$HERMES_HOME/plugins/hermes-slash-router` and refuses to overwrite an existing package. It also refuses to install over a pre-existing standalone Desktop copy: back that copy up and remove it manually before retrying. Then run `hermes plugins enable hermes-slash-router`, rescan or reload Hermes Desktop, and enable Slash Router in **Capabilities → Plugins**. Both halves remain off until you enable them. For a hosted repository, the normal install path is `hermes plugins install <owner>/<repo>`.
 
-For Jev, enable `hermes-slash-router` in the backend profile's `plugins.enabled` configuration, make `TYPESAFE_API_KEY` available to that gateway process, and restart the gateway when idle. The desktop toggle and backend allow-list are separate. The key stays server-side; do not put it in plugin.js or plugin storage. Remote gateways need the backend package installed and enabled on that remote host.
+The manifest declares `TYPESAFE_API_KEY` as a required secret, and the hosted Hermes install flow prompts for it. The local copy installer never reads or writes credentials; for a local install, provide the key to the gateway through your normal secret setup. Do not put it in plugin.js or plugin storage. Remote gateways need the agent package installed and enabled on that remote host.
 
 The pinned API model is `jev-1.13.0`; request timeout is 3 seconds. Each backend admits at most one Jev request per second, rejects bursts, and never automatically retries. Saved route records and explicit corrections are sent as optional reminder context; they never avoid a Jev call. Jev re-evaluates every non-exact token and may choose a different command or abstain. Live calls incur TypeSafe usage. The explanation is sent to Jev when taught and stored only because the user pressed **Remember what I meant**. Corrections use the existing `/resolve` route and send a normalized explanation token as well, so gateways that have not loaded the newer `/learn` endpoint can still process them. API errors fail closed with the original draft and explanation retained. If the command catalog itself cannot load, slash submissions are also retained until connectivity returns.
 
 ## Verification
 
-`npm test --prefix ~/Projects/hermes-slash-router`
+Run these from the repository root:
 
-`~/.hermes/hermes-agent/.venv/bin/python -m unittest discover -s ~/Projects/hermes-slash-router/tests -p 'test_*.py'`
+`npm test`
+
+`python3 -m unittest discover -s tests -p 'test_*.py'`
+
+The Python checks need FastAPI and Pydantic, supplied by a Hermes Agent Python environment.
 
 Tests use the actual plugin handler and mocked TypeSafe transport. A paid live Jev call and desktop end-to-end execution are separate checks, not covered by these tests.
 
@@ -33,6 +37,8 @@ Live Jev checks on 2026-09-20: ten sequential TypeSafe calls completed, includin
 
 End-to-end Hermes Desktop smoke test (2026-09-20): after reloading the desktop plugin, a previously saved `/mdl` decision still triggered a fresh Jev lookup and opened the native Switch model picker. After restarting the Max Gateway to load the updated backend, another `/mdl` again displayed `/mdl → /model (jev)` and opened the picker. I canceled both without changing the active model. A prior `/xyzzy` UI check kept the draft in the composer and showed the free-text “What did you mean?” prompt; a no-action explanation reached Jev and abstained without saving a mapping.
 
-All 28 offline tests pass (19 JavaScript, 9 Python), including cross-spelling correction examples, profile/catalog scoping, fresh Jev decisions, argument preservation, privacy, abstention, and free-text clarification. Installed desktop copies and the backend package match their source hashes. The Hermes Desktop plugin reloaded and its palette actions remained available. The Max Gateway restarted under a new process and returned ready. The new correction generalization is covered with mocked Jev; no paid live correction call was made. Corrections saved by older versions do not contain the explanation, so teach that shortcut once more to enable related-spelling context.
+The offline tests cover cross-spelling correction examples, profile/catalog scoping, fresh Jev decisions, argument preservation, privacy, abstention, free-text clarification, and unified-package installation. The Hermes Desktop plugin reloaded and its palette actions remained available. The Max Gateway restarted under a new process and returned ready. The new correction generalization is covered with mocked Jev; no paid live correction call was made. Corrections saved by older versions do not contain the explanation, so teach that shortcut once more to enable related-spelling context.
 
-References: [TypeSafe API quickstart](https://docs.typesafe.ai/introduction/quickstart), [Hermes Desktop SDK](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/developer-guide/desktop-plugin-sdk.md).
+Possible next directions beyond slash commands are in [ROADMAP.md](ROADMAP.md); they are proposals, not shipped behavior.
+
+References: [TypeSafe API quickstart](https://docs.typesafe.ai/introduction/quickstart), [Hermes Desktop SDK for v0.21.2](https://github.com/NousResearch/hermes-agent/blob/v2026.9.11/website/docs/developer-guide/desktop-plugin-sdk.md).

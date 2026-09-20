@@ -187,6 +187,7 @@ export function Clarification({ pending }) {
 export default {
   id: ID,
   name: 'Slash Router · Jev',
+  defaultEnabled: false,
   register(ctx) {
     const pending = atom(null)
     ctx.register({ id: 'clarification', area: COMPOSER_AREAS.bottom, render: () => jsx(Clarification, { pending }) })

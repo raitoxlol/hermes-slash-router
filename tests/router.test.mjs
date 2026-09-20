@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 const source = (await readFile(new URL('../desktop/plugin.js', import.meta.url), 'utf8')).replace(/^import .*\n/gm, '')
-const { createHandler } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
+const { createHandler, default: desktopPlugin } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
 const catalog = { pairs: [['/model', 'Select model'], ['/reasoning', 'Thinking effort'], ['/help', 'Help']], canon: { '/model': '/model', '/reasoning': '/reasoning', '/help': '/help' } }
 function setup(cat = catalog, response = { target: 'model', confidence: .99, source: 'jev' }) {
   const storage = new Map(), calls = [], notices = [], prompts = []
@@ -17,6 +17,9 @@ test('Jev resolves a transposed typo and preserves arguments, spacing and attach
   assert.equal(out.text, ' /model  provider/model\n'); assert.equal(out.attachments, attachments)
   assert.equal(s.calls.length, 1)
   assert.equal(s.calls[0][1].body.token, 'modle')
+})
+test('desktop plugin remains opt-in until the user enables it', () => {
+  assert.equal(desktopPlugin.defaultEnabled, false)
 })
 test('Jev interprets reasoning and effort in either catalog direction', async () => {
   const forward = setup(catalog, () => ({ target: 'reasoning', confidence: .99 }))
