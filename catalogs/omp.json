@@ -1,0 +1,17 @@
+{
+  "surface": "omp",
+  "commands": [
+    {"name": "goal", "description": "Write an explicit goal and execute with checkpoints"},
+    {"name": "amq-cli", "description": "Coordinate agents via AMQ"},
+    {"name": "amq-spec", "description": "Parallel-research-then-converge design workflow"},
+    {"name": "hyperframes", "description": "Make or edit a HyperFrames video"},
+    {"name": "cmux", "description": "Control cmux workspaces and panes"},
+    {"name": "media-use", "description": "Resolve media for HyperFrames"},
+    {"name": "browser-harness", "description": "Direct browser control via CDP"},
+    {"name": "i-have-adhd", "description": "Shape output for ADHD"},
+    {"name": "youtube-transcript", "description": "Fetch a YouTube transcript"},
+    {"name": "agent-reach", "description": "Research across the internet"},
+    {"name": "vps-server-management", "description": "Manage VPS servers"},
+    {"name": "route", "description": "Jev-route a messy slash token to a real command"}
+  ]
+}

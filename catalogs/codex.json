@@ -1,0 +1,21 @@
+{
+  "surface": "codex",
+  "commands": [
+    {"name": "init", "description": "Initialize AGENTS.md"},
+    {"name": "compact", "description": "Compact conversation context"},
+    {"name": "model", "description": "Switch model"},
+    {"name": "status", "description": "Status"},
+    {"name": "approvals", "description": "Approval policy"},
+    {"name": "review", "description": "Code review"},
+    {"name": "diff", "description": "Show diff"},
+    {"name": "undo", "description": "Undo last changes"},
+    {"name": "memory", "description": "Memory"},
+    {"name": "skills", "description": "Skills"},
+    {"name": "plan", "description": "Plan"},
+    {"name": "fork", "description": "Fork the thread"},
+    {"name": "clear", "description": "Clear the conversation"},
+    {"name": "help", "description": "Help"},
+    {"name": "goal", "description": "Persistent goal loop"},
+    {"name": "route", "description": "Jev-route a messy slash token to a real command"}
+  ]
+}

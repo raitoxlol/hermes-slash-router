@@ -21,7 +21,7 @@ def install(home: Path | None = None) -> Path:
     package.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source, package, ignore=shutil.ignore_patterns(
         '.git', '.gitignore', '.github', '__pycache__', '*.py[cod]', 'tests',
-        'install.py', 'live-results.json'))
+        'install.py', 'live-results.json', 'videos', 'node_modules'))
     return package
 
 

@@ -19,10 +19,13 @@ class InstallerTest(unittest.TestCase):
             self.assertTrue((package / 'plugin.yaml').is_file())
             self.assertTrue((package / 'desktop' / 'plugin.js').is_file())
             self.assertTrue((package / 'dashboard' / 'plugin_api.py').is_file())
+            self.assertTrue((package / 'core' / 'resolve.py').is_file())
+            self.assertTrue((package / 'catalogs' / 'hermes.json').is_file())
+            self.assertTrue((package / 'slash_route.py').is_file())
+            self.assertFalse((package / 'videos').exists())
             self.assertFalse((home / 'desktop-plugins').exists())
             self.assertFalse((package / 'live-results.json').exists())
             self.assertFalse((package / 'install.py').exists())
-
     def test_refuses_to_overwrite_existing_package(self):
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp)

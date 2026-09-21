@@ -1,6 +1,7 @@
 # Hermes Slash Router
 
-Unified Hermes Agent and Desktop plugin: TypeSafe Jev routes misspelled, shortened, and meaning-based slash commands to real Hermes commands.
+Unified Hermes Agent and Desktop plugin, plus a portable CLI: TypeSafe Jev routes misspelled, shortened, and meaning-based slash commands to real commands.
+
 
 <a href="hermes://plugin/install?repo=raitoxlol/hermes-slash-router&enable=1">Install in Hermes</a> — or run `hermes plugins install raitoxlol/hermes-slash-router`.
 
@@ -19,6 +20,26 @@ Unified Hermes Agent and Desktop plugin: TypeSafe Jev routes misspelled, shorten
 Arguments and attachments are preserved. Routing sends Jev the command token, current catalog, an optional exact-token reminder, and up to eight explicit correction examples scoped to the active profile and catalog. Arguments and conversation history are never sent. Clicking **Remember what I meant** saves that explanation (up to 500 characters) with the correction reminder; it is not copied to routing history. These are hints for Jev, not aliases or automatic routes. The plugin records Jev decisions, not proof that downstream commands succeeded: Hermes middleware has no execution-result hook.
 
 Prior decisions persist in Hermes plugin storage, scoped by profile and catalog contents. The last 500 mappings and 200 history entries are retained. Jev and correction decisions are advisory hints only; every non-exact use is rechecked by Jev. Older local guesses are ignored. In ⌘K, use **Slash Router: copy routing history** or **Slash Router: forget the last route reminder**. Existing exact commands always pass through unchanged.
+
+## Other surfaces
+
+Hermes Desktop intercepts the composer. Hermes CLI and Telegram now **observe failed slashes**: if the token is not a built-in, plugin, or skill command, Jev may rewrite it to a real command before the host prints `Unknown command`. Known commands are left alone. `/start` is never sent to Jev. Unauthorized Telegram senders do not trigger a paid lookup.
+
+| Surface | Failed-slash recovery | Manual |
+| --- | --- | --- |
+| Hermes Desktop | Composer middleware | — |
+| Hermes CLI | Unknown-command path calls Jev, then redispatches | `/route mdl` |
+| Telegram / Discord gateway | `pre_gateway_dispatch` rewrite | `/route mdl` |
+| Claude Code / Codex / OMP | No host hook; skill + CLI only | `/route` or `slash-route` |
+
+```bash
+slash-route resolve --surface hermes mdl
+slash-route resolve --surface telegram thnkin
+slash-route resolve --surface claude compact
+slash-route learn --surface omp hf --meaning "make a hyperframes video"
+```
+
+`TYPESAFE_API_KEY` must already be in the environment. Restart Hermes after enabling the plugin so the gateway hook and CLI patch load.
 
 ## Install
 
@@ -44,6 +65,8 @@ Run these from the repository root:
 `npm test`
 
 `python3 -m unittest discover -s tests -p 'test_*.py'`
+
+Python checks cover the Desktop HTTP wrapper, installer, portable core, catalogs, and CLI.
 
 The Python checks need FastAPI and Pydantic, supplied by a Hermes Agent Python environment.
 

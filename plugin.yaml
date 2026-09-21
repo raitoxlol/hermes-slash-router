@@ -1,6 +1,6 @@
 name: hermes-slash-router
-version: 0.1.0
-description: Jev-powered routing for misspelled, shortened, and meaning-based Hermes Desktop slash commands.
+version: 0.2.0
+description: Jev-powered routing for messy slash commands on Hermes Desktop, CLI, and Telegram; CLI/skill adapters for Claude, Codex, and OMP.
 requires_env:
   - name: TYPESAFE_API_KEY
     description: TypeSafe API key for Jev routing; requests use paid API usage.

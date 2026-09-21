@@ -16,6 +16,7 @@ Offer an explicitly opened palette action for requests such as “new session in
 
 ## 4. Other Hermes surfaces
 
-A user-invoked `/route <intent>` helper may work in the agent CLI and supported chat platforms. Transparent rewriting of arbitrary misspelled built-in commands is not supported by Hermes v0.21.2's observer-only `pre_command` hook, so broader automatic interception needs an upstream API and must not be advertised yet.
+Shipped in 0.2.0: `/route` on Hermes CLI and Telegram, plus `slash-route` for Claude Code, Codex, and OMP. Transparent rewriting of arbitrary misspelled built-in commands is still not supported by Hermes v0.21.2's observer-only `pre_command` hook.
+
 
 Recommended order: build the learned examples shelf first, then prototype Jev Finder. Keep worktree creation and other state-changing actions behind explicit confirmation.
