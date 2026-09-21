@@ -112,7 +112,7 @@ export function createHandler(ctx, api = host, show = () => {}) {
           if (!current() || freshKey !== (await routeIdentity(profile, latest, token)).key) return { ok: false, message: 'Available commands changed. Try explaining again.' }
           remember(ctx, freshKey, token, { ...route, source: 'correction', origin: 'correction', meaning: explanation })
           show(null)
-          api.notify({ kind: 'info', message: `Jev saved /${token} → /${route.target} as a reminder for similar shortcuts. It will check again next time. Press Send again to run it.` })
+          api.notify({ kind: 'info', message: `Saved: /${token} → /${route.target}. Press Send to run it.` })
           return { ok: true }
         } catch {
           return { ok: false, message: 'Could not reach Jev. Your explanation is still here; wait a moment, then try again.' }
@@ -141,7 +141,7 @@ export function createHandler(ctx, api = host, show = () => {}) {
         return clarify('Tell me what you wanted to do. I’ll work out the command and remember it.')
       }
       remember(ctx, key, token, route)
-      api.notify({ kind: 'info', message: `/${token} → /${route.target} (${route.source})` })
+      api.notify({ kind: 'info', message: `/${token} → /${route.target}` })
       return { ...draft, text: `${match[1]}/${route.target}${match[3]}` }
     } catch {
       return clarify(entries.length
@@ -173,13 +173,15 @@ export function Clarification({ pending }) {
       jsx('p', { role: 'status', children: state.reason }),
       jsx(Input, { 'aria-label': 'What did you mean?', placeholder: 'Describe what you wanted to do…', value: state.explanation,
         maxLength: 500, disabled: state.busy, onChange: event => pending.set({ ...state, explanation: event.target.value }),
+        autoFocus: true,
         onKeyDown: event => {
           if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); void teach() }
+          if (event.key === 'Escape' && !state.busy) { event.preventDefault(); event.stopPropagation(); pending.set(null) }
         } }),
       jsx(Button, { type: 'button', disabled: state.busy || !state.explanation.trim(), onClick: teach,
         children: state.busy ? 'Understanding…' : 'Remember what I meant' }),
-      jsx('p', { children: 'Jev saves your explanation as a reminder for similar shortcuts. It checks each new token again and can choose differently or ask; after Jev accepts this explanation, press Send to run it.' }),
-      jsx(Button, { type: 'button', disabled: state.busy, onClick: () => pending.set(null), children: 'Dismiss' })
+      jsx(Button, { type: 'button', disabled: state.busy, onClick: () => pending.set(null), children: 'Dismiss' }),
+      jsx('p', { children: 'Enter to save, Esc to dismiss. Jev keeps this as a hint and still checks every time. Once saved, press Send again.' })
     ]
   })
 }

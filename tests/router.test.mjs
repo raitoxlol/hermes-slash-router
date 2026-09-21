@@ -239,6 +239,11 @@ test('bottom prompt has a free-text answer without a command approval list', asy
   tree = ui.Clarification({ pending })
   assert.deepEqual(tree.props.children.filter(c => c?.type === 'button').map(c => c.props.children), ['Remember what I meant', 'Dismiss'])
   assert.equal(state.explanation, 'reason')
+  const input = tree.props.children.find(c => c?.type === 'input')
+  const noop = () => {}
+  input.props.onKeyDown({ key: 'Escape', preventDefault: noop, stopPropagation: noop })
+  assert.equal(state, null)
+  state = { token: 'xyz', profile: 'max', session: 'session-a', explanation: '', reason: 'r', teach: async () => ({ok:true}) }
   state = { ...state, session: 'session-b' }
   assert.equal(ui.Clarification({ pending }), null)
 })
