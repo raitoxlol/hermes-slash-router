@@ -55,10 +55,29 @@ def _call(body: ResolveRequest):
     }
 
 
+def _key_saved() -> bool:
+    """True when a non-empty TYPESAFE_API_KEY line exists in a Hermes .env. Never returns the value."""
+    import os
+    homes = [os.environ.get('HERMES_HOME'), str(Path.home() / '.hermes')]
+    for home in filter(None, homes):
+        try:
+            lines = (Path(home) / '.env').read_text(encoding='utf-8').splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            line = line.strip().removeprefix('export ')
+            if line.startswith('TYPESAFE_API_KEY=') and line.split('=', 1)[1].strip().strip('"\''):
+                return True
+    return False
+
+
 @router.get('/status')
 def status():
     import os
-    return {'configured': bool(os.environ.get('TYPESAFE_API_KEY')), 'model': 'jev-1.13.0'}
+    configured = bool(os.environ.get('TYPESAFE_API_KEY'))
+    # loaded: usable now. saved: in .env but this process started without it. missing: nowhere.
+    key = 'loaded' if configured else 'saved' if _key_saved() else 'missing'
+    return {'configured': configured, 'key': key, 'model': 'jev-1.13.0'}
 
 
 @router.post('/resolve')

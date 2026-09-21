@@ -1,4 +1,4 @@
-import { host, COMPOSER_AREAS, PALETTE_AREA, atom, useValue, Button, Input } from '@hermes/plugin-sdk'
+import { host, COMPOSER_AREAS, PALETTE_AREA, atom, useValue, useQuery, Button, Input, StatusDot, Tip } from '@hermes/plugin-sdk'
 import { jsx, jsxs } from 'react/jsx-runtime'
 
 const ID = 'hermes-slash-router'
@@ -186,12 +186,45 @@ export function Clarification({ pending }) {
   })
 }
 
+const KEY_STATES = {
+  loaded: { tone: 'good', label: 'Jev key', tip: 'TYPESAFE_API_KEY is loaded. Slash routing is ready.' },
+  saved: { tone: 'warn', label: 'Jev key: restart', tip: 'TYPESAFE_API_KEY is saved in .env but not loaded. Restart the Hermes gateway.' },
+  missing: { tone: 'bad', label: 'Jev key missing', tip: 'TYPESAFE_API_KEY is not saved. Add it to ~/.hermes/.env, then restart Hermes.' },
+  offline: { tone: 'muted', label: 'Jev key ?', tip: 'Cannot reach the Slash Router backend. Enable the plugin in config.yaml and restart Hermes.' }
+}
+
+export function keyState(data, error) {
+  if (error || !data) return KEY_STATES.offline
+  return KEY_STATES[data.key] || (data.configured ? KEY_STATES.loaded : KEY_STATES.missing)
+}
+
+export function KeyStatus({ ctx }) {
+  const { data, error, refetch } = useQuery({
+    queryKey: [ID, 'key-status'],
+    queryFn: () => ctx.rest('/status', { timeoutMs: 3000 }),
+    refetchInterval: 60000,
+    retry: false
+  })
+  const state = keyState(data, error)
+  return jsx(Tip, {
+    label: `${state.tip} Click to recheck.`,
+    children: jsxs('button', {
+      type: 'button',
+      'aria-label': state.tip,
+      className: 'inline-flex h-full items-center gap-1 px-1.5 text-[0.6875rem] text-(--ui-text-tertiary) hover:bg-(--chrome-action-hover) hover:text-foreground',
+      onClick: () => { void refetch() },
+      children: [jsx(StatusDot, { tone: state.tone }), state.label]
+    })
+  })
+}
+
 export default {
   id: ID,
   name: 'Slash Router · Jev',
   defaultEnabled: false,
   register(ctx) {
     const pending = atom(null)
+    ctx.register({ id: 'key-status', area: 'statusBar.right', order: 140, render: () => jsx(KeyStatus, { ctx }) })
     ctx.register({ id: 'clarification', area: COMPOSER_AREAS.bottom, render: () => jsx(Clarification, { pending }) })
     ctx.register({ id: 'route', area: COMPOSER_AREAS.middleware, order: -100, data: { handler: createHandler(ctx, host, value => pending.set(value)) } })
     ctx.register({ id: 'history', area: PALETTE_AREA, data: {

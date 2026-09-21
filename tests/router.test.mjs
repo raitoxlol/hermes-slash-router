@@ -247,3 +247,12 @@ test('bottom prompt has a free-text answer without a command approval list', asy
   state = { ...state, session: 'session-b' }
   assert.equal(ui.Clarification({ pending }), null)
 })
+test('key status indicator maps backend states and never needs the key value', async () => {
+  const { keyState } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
+  assert.equal(keyState({ key: 'loaded' }).tone, 'good')
+  assert.equal(keyState({ key: 'saved' }).tone, 'warn')
+  assert.equal(keyState({ key: 'missing' }).tone, 'bad')
+  assert.equal(keyState({ configured: true }).tone, 'good')
+  assert.equal(keyState({ configured: false }).tone, 'bad')
+  assert.equal(keyState(null, new Error('down')).tone, 'muted')
+})

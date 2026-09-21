@@ -108,6 +108,21 @@ class BackendTest(unittest.TestCase):
         self.assertEqual(result.exception.status_code, 422)
         opened.assert_not_called()
 
+    def test_key_status_never_exposes_value(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as home:
+            env = Path(home) / '.env'
+            with patch.dict(os.environ, {'HERMES_HOME': home}, clear=True), patch.object(Path, 'home', return_value=Path(home)):
+                self.assertEqual(api.status()['key'], 'missing')
+                env.write_text('export TYPESAFE_API_KEY="sk-secret"\n')
+                self.assertEqual(api.status()['key'], 'saved')
+                env.write_text('TYPESAFE_API_KEY=\n')
+                self.assertEqual(api.status()['key'], 'missing')
+            with patch.dict(os.environ, {'TYPESAFE_API_KEY': 'sk-secret'}, clear=True):
+                result = api.status()
+            self.assertEqual(result['key'], 'loaded')
+            self.assertNotIn('sk-secret', json.dumps(result))
+
 
 if __name__ == '__main__':
     unittest.main()
