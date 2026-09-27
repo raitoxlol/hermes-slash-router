@@ -1,16 +1,21 @@
 """Jev transport. Credentials stay in the gateway process; no generated commands."""
-import sys
+import importlib.util
 from pathlib import Path
 from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from core.resolve import MIN_CONFIDENCE, SlashRouteError, resolve_route
+# Load our own module by path under a plugin-prefixed name rather than putting the
+# plugin root on sys.path: the gateway's import namespace is shared with every other
+# plugin and site-package, so an unprefixed `core` there collides silently.
+_spec = importlib.util.spec_from_file_location(
+    'hermes_slash_router_core.resolve',
+    Path(__file__).resolve().parents[1] / 'slash_router_core' / 'resolve.py',
+)
+_core = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_core)
+MIN_CONFIDENCE, SlashRouteError, resolve_route = _core.MIN_CONFIDENCE, _core.SlashRouteError, _core.resolve_route
 
 router = APIRouter()
 
