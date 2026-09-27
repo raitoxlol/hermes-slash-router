@@ -8,13 +8,11 @@ import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-
-from core import resolve as core_resolve
 
 spec = importlib.util.spec_from_file_location('plugin_api', ROOT / 'dashboard/plugin_api.py')
 api = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(api)
+core_resolve = api._core
 
 
 class BackendTest(unittest.TestCase):
