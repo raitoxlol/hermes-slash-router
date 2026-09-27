@@ -14,9 +14,9 @@ Let a user describe a goal in the command palette and search the live Hermes com
 
 Offer an explicitly opened palette action for requests such as “new session in a worktree” or “switch to the fast model.” Route against documented Hermes Desktop actions, then show the exact action for confirmation. This would reach beyond composer slash syntax while avoiding interception of ordinary conversation text.
 
-## 4. Other Hermes surfaces
+## Scope
 
-Shipped in 0.2.0: `/route` on Hermes CLI and Telegram, plus `slash-route` for Claude Code, Codex, and OMP. Transparent rewriting of arbitrary misspelled built-in commands is still not supported by Hermes v0.21.2's observer-only `pre_command` hook.
+Version 0.3.0 is Desktop-only. CLI/gateway routing and other-agent adapters were removed. Future work should stay inside the Desktop SDK and its credential-safe HTTP backend.
 
 
 Recommended order: build the learned examples shelf first, then prototype Jev Finder. Keep worktree creation and other state-changing actions behind explicit confirmation.

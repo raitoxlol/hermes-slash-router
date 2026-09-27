@@ -1,4 +1,4 @@
-"""Install the unified Hermes plugin package into a local Hermes home."""
+"""Install the Desktop plugin and its credential-safe HTTP backend."""
 import os
 from pathlib import Path
 import shutil
@@ -16,7 +16,7 @@ def install(home: Path | None = None) -> Path:
         existing = ', '.join(str(path) for path in conflicts)
         raise FileExistsError(
             f'Existing plugin installation(s): {existing}. '
-            'Back them up and remove them manually before installing the unified package; '
+            'Back them up and remove them manually before installing the Desktop package; '
             'this installer will not replace or migrate them.')
     package.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source, package, ignore=shutil.ignore_patterns(
@@ -27,8 +27,8 @@ def install(home: Path | None = None) -> Path:
 
 def main() -> None:
     package = install()
-    print(f'Installed unified Hermes plugin: {package}')
-    print('Enable the agent half with: hermes plugins enable hermes-slash-router')
+    print(f'Installed Hermes Desktop plugin: {package}')
+    print('Enable its HTTP backend with: hermes plugins enable hermes-slash-router')
     print('Rescan or reload Hermes Desktop, then enable Slash Router in Capabilities → Plugins.')
     print('Hosted Hermes installs prompt for TYPESAFE_API_KEY; this local installer does not handle secrets.')
 

@@ -123,6 +123,26 @@ class BackendTest(unittest.TestCase):
             self.assertEqual(result['key'], 'loaded')
             self.assertNotIn('sk-secret', json.dumps(result))
 
+    def test_saved_key_status_follows_active_profile_without_default_fallback(self):
+        import tempfile
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            default = root / '.hermes'
+            a, b = default / 'profiles/a', default / 'profiles/b'
+            for home in (default, a, b):
+                home.mkdir(parents=True, exist_ok=True)
+            (default / '.env').write_text('TYPESAFE_API_KEY=test-default\n')
+            (a / '.env').write_text('TYPESAFE_API_KEY=test-a\n')
+            active = {'home': a}
+            host = SimpleNamespace(get_hermes_home=lambda: active['home'])
+            with patch.dict(sys.modules, {'hermes_constants': host}), \
+                    patch.dict(os.environ, {'HERMES_HOME': str(default)}, clear=True), \
+                    patch.object(Path, 'home', return_value=root):
+                for home, expected in ((a, 'saved'), (b, 'missing'), (a, 'saved')):
+                    active['home'] = home
+                    self.assertEqual(api.status()['key'], expected)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -56,18 +56,23 @@ def _call(body: ResolveRequest):
 
 
 def _key_saved() -> bool:
-    """True when a non-empty TYPESAFE_API_KEY line exists in a Hermes .env. Never returns the value."""
+    """Check only the active profile's saved key; never return its value."""
     import os
-    homes = [os.environ.get('HERMES_HOME'), str(Path.home() / '.hermes')]
-    for home in filter(None, homes):
-        try:
-            lines = (Path(home) / '.env').read_text(encoding='utf-8').splitlines()
-        except OSError:
-            continue
-        for line in lines:
-            line = line.strip().removeprefix('export ')
-            if line.startswith('TYPESAFE_API_KEY=') and line.split('=', 1)[1].strip().strip('"\''):
-                return True
+    try:
+        from hermes_constants import get_hermes_home
+    except ImportError:
+        # Standalone backend tests do not install the Hermes host.
+        home = Path(os.environ.get('HERMES_HOME', Path.home() / '.hermes'))
+    else:
+        home = get_hermes_home()
+    try:
+        lines = (home / '.env').read_text(encoding='utf-8').splitlines()
+    except OSError:
+        return False
+    for line in lines:
+        line = line.strip().removeprefix('export ')
+        if line.startswith('TYPESAFE_API_KEY=') and line.split('=', 1)[1].strip().strip('"\''):
+            return True
     return False
 
 
