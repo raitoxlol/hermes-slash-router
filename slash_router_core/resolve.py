@@ -181,9 +181,3 @@ def resolve_route(
         raise
     except Exception as exc:
         raise SlashRouteError(502, 'Jev unavailable or returned an invalid response.') from exc
-
-
-def clarification_token(explanation: str, fallback: str) -> str:
-    text = explanation.strip().encode('ascii', 'ignore').decode().lower()
-    slug = re.sub(r'[^a-z0-9_:-]+', '_', text).strip('_:')[:64]
-    return slug or fallback

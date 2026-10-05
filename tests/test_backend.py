@@ -100,12 +100,6 @@ class BackendTest(unittest.TestCase):
         self.assertEqual(state['user_clarification'], 'switch the model')
         self.assertEqual(state['mistyped_slash_command'], 'brainpicker')
 
-    def test_learning_requires_explanation(self):
-        with patch.object(core_resolve.urllib.request, 'urlopen') as opened, self.assertRaises(api.HTTPException) as result:
-            api.learn(self.request())
-        self.assertEqual(result.exception.status_code, 422)
-        opened.assert_not_called()
-
     def test_key_status_never_exposes_value(self):
         import tempfile
         with tempfile.TemporaryDirectory() as home:

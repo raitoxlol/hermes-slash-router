@@ -93,10 +93,3 @@ def status():
 @router.post('/resolve')
 def resolve(body: ResolveRequest):
     return _call(body)
-
-
-@router.post('/learn')
-def learn(body: ResolveRequest):
-    if not body.explanation.strip():
-        raise HTTPException(422, 'Explain the intended action.')
-    return resolve(body)
