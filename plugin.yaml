@@ -1,5 +1,5 @@
 name: hermes-slash-router
-version: 0.3.0
+version: 0.3.1
 description: Desktop-only Jev routing for messy slash commands, with profile-scoped reminders and a credential-safe backend.
 requires_env:
   - name: TYPESAFE_API_KEY
